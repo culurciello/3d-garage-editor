@@ -13,6 +13,7 @@
     "@babylonjs/inspector": "^5.3.0",
     "@babylonjs/loaders": "^5.3.0",
     "@babylonjs/materials": "^5.3.0",
+    "@babylonjs/procedural-textures": "^5.3.0",
     "babylonjs-gui": "^5.3.0",
     "vue": "^3.2.33",
     "vue-ref": "^2.0.0",

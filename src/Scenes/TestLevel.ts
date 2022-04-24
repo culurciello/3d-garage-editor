@@ -1,26 +1,16 @@
 import { UI } from '../Providers/UI.ts';
 import { ConstructionBlock } from '../Providers/ConstructionBlock';
 
-// import { GameStateProvider, PossibleGameState } from '@Providers/GameStateProvider';
-// import { AbstractMesh, FadeInOutBehavior, Scene, SceneLoader, TimerState, Vector3, Animation, Mesh, Animatable } from 'babylonjs';
-
-// const scenaryXLocations = [16, 13, 11, -9, -8, -7, -6, 6, 7, 8, 9, 11, 13, 16];
 
 export default class TestLevel {
 
-    // scene: Scene;
-    // meshes: Mesh[] = []
-    // gameState: GameStateProvider;
-    // animations: Animatable[] = [];
-    // lastFrames: number[] = [];
-
-    constructor(scene: Scene, gameState: GameStateProvider) {
+    constructor(scene: Scene) {
         this.scene = scene;
-        this.gameState = gameState;
 
         this.menu = null;
         this.selectedObject = null; // object selected by user to edit / visual code
         this.editMode = false; // false == game, true == edit
+        this.gizmoManager = null;
 
         // level elements:
         this.blocks = []; // list of blocks used
@@ -28,19 +18,7 @@ export default class TestLevel {
         this.lenBlocks = 0; // how many blocks used
     }
 
-    // async loadScenary() {
-    //     const promises = ["DeadTree_1", "DeadTree_2", "DeadTree_3"].map(fileName => {
-    //         return SceneLoader.ImportMeshAsync(fileName, `${window.location.origin}${window.location.pathname}model/`, `${fileName}.babylon`, this.scene).then(obj => {
-    //             const mesh = obj.meshes[0] as Mesh
-    //             mesh.isVisible = false
-    //             mesh.position = new Vector3(0, -100, 0);
-    //             this.meshes.push(mesh)
-    //         })
-    //     })
-    //     return Promise.all(promises)
-    // }
-
-    GenerateLevel() {
+    start() {
         this.scene.clearColor = new BABYLON.Color3.FromHexString('#777');
         
         // Adding lights
@@ -88,16 +66,15 @@ export default class TestLevel {
         this.highlight = new BABYLON.HighlightLayer("hl1", this.scene);
         this.setEditGizmo();
 
+        // mouse events - select objects and such!
+        this.setupEventListeners();
+
         // add items:
         this.addTestBlocks();
 
     }
 
     createCamera() {
-        // const camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 0, 0), this.scene);
-        // camera.position = new BABYLON.Vector3(0, 9, -10);
-        // camera.rotation = new BABYLON.Vector3(0.4653956558758062, 0, 0);
-        // return camera;
 
         const fpsCameraPOS = new BABYLON.Vector3(0, 1.5, 5);
         const camera = new BABYLON.UniversalCamera("UniversalCamera", fpsCameraPOS, this.scene);
@@ -212,6 +189,16 @@ export default class TestLevel {
 
     }
 
+    reStart() {
+        // clean up previous scene:
+        console.log("restarting");
+        this.blockly = null;
+        GAME.engine.stopRenderLoop();
+        this.scene.dispose();
+        // and re-start:
+        GAME.startLevel();
+    }
+
     // beforeRender() {
     //     if(!GAME.isPaused()) {
     //         if(this.cam.camera.position.y < -30) {
@@ -220,5 +207,125 @@ export default class TestLevel {
     //         }
     //     }
     // }
+
+    setupEventListeners() {
+        // mouse clicks:
+        this.scene.onPointerObservable.add((eventData) => {
+            if (eventData.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+                // console.log('start X,Y: ', this.scene.pointerX, this.scene.pointerY)
+                const result = this.scene.pick(this.scene.pointerX, this.scene.pointerY)
+                if (result.hit) {
+                    var n = result.pickedMesh.name;
+                    if (this.selectedObject != null) { 
+                        this.highlight.removeMesh(this.selectedObject);
+                        this.selectedObject.selected = false;
+                    }
+                    // do not pick on ground or sky - use them to unselect!
+                    if (!(n=='ground' || n=='skyBox')) {
+                        this.highlight.addMesh(result.pickedMesh, BABYLON.Color3.White())
+                        result.pickedMesh.selected = true;
+                        this.selectedObject = result.pickedMesh;
+                        console.log('Selected:', n)
+                    }
+                }
+            } 
+        })
+    }
+
+    // custom save function  - not BabylonJS default json save scene!
+    saveScene() {
+        // console.log('save scene - custom');
+        var data = []
+
+        // save construction blocks
+        this.blocks.forEach( (block) => {
+            var block_data = {"type":"ConstructionBlock", 
+                                "name":block.name, 
+                                "size":block.mesh.scaling,
+                                "position":block.mesh.position,
+                                "rotation":block.mesh.rotation, 
+                                "color":block.mesh.material.emissiveColor};
+            data.push(block_data);
+            // console.log('block:', block, data);
+        });
+
+        // save visual programming
+        // TBD
+
+        // save to file via web interface:
+        var json = JSON.stringify(data);
+        var blob = new Blob([json], {type: "application/json"});
+        var url  = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.download    = "backup.json";
+        a.href        = url;
+        a.textContent = "Download backup.json";
+        a.click();
+
+    }
+
+    // custom load function  - not BabylonJS default json save scene!
+    loadScene() {
+
+        console.log("Loading saved scene");
+        this.reStart();
+
+        this.scene.executeWhenReady(function () {
+
+            // load saved data:
+            // cannot make dialog get full path, so have to save in a pre-defined location:
+            fetch('./static/assets/save/backup.json')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('fetched:', data);
+                    data.forEach( (block) => {
+                        if (block["type"] == "ConstructionBlock") {
+                            console.log('loaded block:', block);
+                            var position = block["position"];
+                            var rotation = block["rotation"];
+                            var size = new BABYLON.Vector3(block["size"]["_x"], block["size"]["_y"], block["size"]["_z"]);
+                            var color = block["color"];
+                            // console.log(size, position, rotation, color)
+                            var b = GAME.currentLevel.addBlock(size, position, rotation, color);
+                            b.name = block["name"]
+                        };
+                    });
+                });
+
+
+            // // load file via dialog:
+            // var fileInput = document.getElementById("loadFile");
+
+            // if(!fileInput){
+            //     fileInput = document.createElement("INPUT");
+            //     fileInput.setAttribute("id", "loadFile");
+            //     fileInput.setAttribute("type", "file");
+            //     fileInput.style.position = "absolute";
+            //     fileInput.style.top = "80px";
+            //     fileInput.style.width = "200px"
+            //     fileInput.style.height = "100px";
+            //     fileInput.style.right = "40px"
+            //     document.body.children[0].appendChild(fileInput);
+            // }
+
+            // var loadButton = document.getElementById('loadFile');
+
+            // loadButton.onchange = function(evt){
+            //     var files = evt.target.files;
+            //     var filename = files[0].name;
+            //     // var blob = new Blob([files[0]]);
+
+            //     console.log(files[0], filename)
+
+            //     fetch(filename)//'./static/assets/save/scene.json')
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             console.log('fetched:', data);
+            //             var sceneString = "data:" + JSON.stringify(data);
+            //             });
+            // };
+            // loadButton.click(); // opening dialog
+        });
+    }
 
 } 

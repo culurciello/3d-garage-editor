@@ -4,7 +4,7 @@ export enum PossibleGameState {
     startMenu,
     pause,
     ongoing,
-    done
+    done,
 }
 
 export class GameStateProvider {
