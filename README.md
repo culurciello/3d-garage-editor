@@ -41,3 +41,6 @@ npm run dev
 ```sh
 npm run build
 ```
+
+##### Inspired by: 
+https://github.com/RingoKam/MathRunner

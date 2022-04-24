@@ -1,5 +1,6 @@
 import { UI } from '../Providers/UI.ts';
 import { ConstructionBlock } from '../Providers/ConstructionBlock';
+import { Game } from './Game';
 
 
 export default class TestLevel {
@@ -83,7 +84,7 @@ export default class TestLevel {
         camera.heightOffset = 5;
         camera.rotationOffset = 180;
 
-        // camera.attachControl(canvasDom, false);
+        camera.attachControl(Game.canvas, false);
         camera.setTarget(new BABYLON.Vector3(0,0,0));
         // camera.applyGravity = true;
         camera.ellipsoid = new BABYLON.Vector3(0.3, 0.75, 0.3); // size of FPS player!
