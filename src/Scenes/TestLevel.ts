@@ -1,13 +1,11 @@
-import { UI } from '../Providers/UI.ts';
-import { ConstructionBlock } from '../Providers/ConstructionBlock';
-import { Game } from './Game';
+import { UI } from '@/base/UI';
+import { ConstructionBlock } from '@/Providers/ConstructionBlock';
+import { Game } from "@/Scenes/Game";
+import Level from '@/base/Level';
 
+export default class TestLevel extends Level {
 
-export default class TestLevel {
-
-    constructor(scene: Scene) {
-        this.scene = scene;
-
+    setProperties() {
         this.menu = null;
         this.selectedObject = null; // object selected by user to edit / visual code
         this.editMode = false; // false == game, true == edit
@@ -19,7 +17,7 @@ export default class TestLevel {
         this.lenBlocks = 0; // how many blocks used
     }
 
-    start() {
+    buildScene() {
         this.scene.clearColor = new BABYLON.Color3.FromHexString('#777');
         
         // Adding lights
@@ -77,7 +75,7 @@ export default class TestLevel {
 
     createCamera() {
 
-        const fpsCameraPOS = new BABYLON.Vector3(0, 1.5, 5);
+        const fpsCameraPOS = new BABYLON.Vector3(0, 5, -30); //new BABYLON.Vector3(0, 1.5, 5);
         const camera = new BABYLON.UniversalCamera("UniversalCamera", fpsCameraPOS, this.scene);
         
         camera.radius = 15;
@@ -85,7 +83,7 @@ export default class TestLevel {
         camera.rotationOffset = 180;
 
         camera.attachControl(Game.canvas, false);
-        camera.setTarget(new BABYLON.Vector3(0,0,0));
+        camera.setTarget(new BABYLON.Vector3(0,0.5,1));//new BABYLON.Vector3(0,0,0));
         // camera.applyGravity = true;
         camera.ellipsoid = new BABYLON.Vector3(0.3, 0.75, 0.3); // size of FPS player!
         camera.checkCollisions = true;
@@ -110,11 +108,7 @@ export default class TestLevel {
     addTestBlocks() {
         // var b1 = this.addBlock();
         var rotation = new BABYLON.Vector3(0,0,0);
-        var b1 = this.addBlock(new BABYLON.Vector3(2, 2, 5), new BABYLON.Vector3(10, 2, 0), rotation, null);
-        // var b2 = this.addBlock(new BABYLON.Vector3(-10, 1, 0));
-        // var b3 = this.addBlock(new BABYLON.Vector3(6, 0.2, 2), new BABYLON.Vector3(-3, 2, 0), rotation, null);
-        // var b31 = this.addBlock(new BABYLON.Vector3(6, 0.2, 2), new BABYLON.Vector3(-3, 1, 4), rotation, null);
-        // b3.movable = false;
+        var b1 = this.addBlock(new BABYLON.Vector3(2, 2, 5), new BABYLON.Vector3(5, 2, 0), rotation, null);
     }
 
     addBlock(size, position, rotation, color){
@@ -191,13 +185,8 @@ export default class TestLevel {
     }
 
     reStart() {
-        // clean up previous scene:
         console.log("restarting");
-        this.blockly = null;
-        GAME.engine.stopRenderLoop();
-        this.scene.dispose();
-        // and re-start:
-        GAME.startLevel();
+        this.game.restart();
     }
 
     // beforeRender() {
@@ -287,7 +276,7 @@ export default class TestLevel {
                             var size = new BABYLON.Vector3(block["size"]["_x"], block["size"]["_y"], block["size"]["_z"]);
                             var color = block["color"];
                             // console.log(size, position, rotation, color)
-                            var b = GAME.currentLevel.addBlock(size, position, rotation, color);
+                            var b = Game.currentLevel.addBlock(size, position, rotation, color);
                             b.name = block["name"]
                         };
                     });

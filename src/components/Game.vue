@@ -17,7 +17,7 @@ export default {
 
     onMounted(() => {
       if (gameCanvas.value) {
-        game = new Game(gameCanvas.value, {});
+        game = new Game(gameCanvas.value);
       }
     });
 

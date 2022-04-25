@@ -1,7 +1,9 @@
 import * as BABYLON from "babylonjs"
 // import { Color4, SceneLoader, Vector3, Vector4, AssetsManager, Sound } from 'babylonjs';
 import "@babylonjs/loaders/glTF";
-import TestLevel from './TestLevel';
+import TestLevel from '@/Scenes/TestLevel';
+import Log from '@/base/Log';
+import Helper from "@/base/Helper";
 
 export class Game {
 
@@ -9,9 +11,9 @@ export class Game {
     scene: BABYLON.Scene
     level: TestLevel
 
-    constructor(canvasDom: HTMLCanvasElement, options = {}) {
+    constructor(canvasDom: HTMLCanvasElement) {
         // Sets game options:
-        this.options = options;
+        this.options = {};
 
         // Keyboard pressed keys:
         this.keys = {};
@@ -20,10 +22,10 @@ export class Game {
         this.paused = false;
 
         // Can be used to log objects and debug the game
-        // this.log = new Log();
+        this.log = new Log(this);
 
         // Helper methods
-        // this.helper = new Helper();
+        this.helper = new Helper();
 
         this.engine = new BABYLON.Engine(canvasDom, true);
         this.scene = new BABYLON.Scene(this.engine);
@@ -33,7 +35,7 @@ export class Game {
             // 'HomeMenuLevel': new HomeMenuLevel(this.scene),
             // 'CreditsLevel': new CreditsLevel(this.scene),
             // 'FirstLevel': new FirstLevel(this.scene),
-            'TestLevel': new TestLevel(this.scene),
+            'TestLevel': new TestLevel(this.scene, this),
         };
 
         this.currentLevel = null;
@@ -45,9 +47,19 @@ export class Game {
     }
 
     start() {
-        this.startLevel();
+        // console.log('game opts', this.options)
+        this.goToLevel('TestLevel');
         this.listenKeys();
         this.listenOtherEvents();    
+    }
+
+    restart(){
+        this.stopRenderLoop();
+        this.scene.dispose();
+        // and re-start:
+        this.scene = new BABYLON.Scene(this.engine);
+        // this.startLevel();
+        this.goToLevel('TestLevel');
     }
 
     pause() {
