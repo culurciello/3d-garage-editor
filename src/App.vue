@@ -11,26 +11,12 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from "vue";
-import { useGamePlayProvider } from "./Providers/GamePlayProvider";
-import { useGameStateContext, useGameStateProvider, PossibleGameState } from "./Providers/GameStateProvider";
-import { useInputMapProvider } from "./Providers/InputMapProvider";
 import Game from "./components/Game.vue";
-// import GameHUD from "./components/GameHUD.vue";
 
 export default defineComponent({
   name: "App",
   components: { Game },//, GameHUD },
   setup() {
-    const inputMap = useInputMapProvider();
-    useGamePlayProvider();
-    const { GameState } = useGameStateProvider();
-
-
-    const captureKeys = (event) => {
-      if(GameState.value === PossibleGameState.ongoing) {
-        inputMap.captureKeyUp(event.key);
-      }
-    };
 
     onMounted(() => {
       document.addEventListener("keyup", captureKeys);
