@@ -144,6 +144,26 @@ export default class TestLevel extends Level {
         }
     }
 
+
+    toggleEditMode() {
+        // toggle edit / game mode
+        this.editMode = !this.editMode;
+        if (this.editMode) {
+            // turn on edit mode menus:
+            for (const b of this.blocks){
+                b._miniMenu.isVisible = true;
+            }
+        }
+        else {
+            // turn off edit mode menus:
+            for (const b of this.blocks){
+                b._miniMenu.isVisible = false;
+                b._editMenu.isVisible = false;
+
+            }
+        }
+    }
+
     createMenu() {
         this.ui = new UI('testLevelUI');
 
@@ -152,6 +172,13 @@ export default class TestLevel extends Level {
             'top': '-45%',
             'left':'-40%',
             'onclick': () => this.reStart()
+        });
+
+        // Edit / Game:
+        this.ui.addButton('editgameButton', 'Edit/Game', {
+            'top': '-45%',
+            'left':'-30%',
+            'onclick': () => this.toggleEditMode()
         });
 
         // add items:
@@ -280,7 +307,7 @@ export default class TestLevel extends Level {
                             var size = new BABYLON.Vector3(block["size"]["_x"], block["size"]["_y"], block["size"]["_z"]);
                             var color = block["color"];
                             // console.log(size, position, rotation, color)
-                            var b = Game.currentLevel.addBlock(size, position, rotation, color);
+                            var b = this.game.currentLevel.addBlock(size, position, rotation, color);
                             b.name = block["name"]
                         };
                     });

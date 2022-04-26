@@ -4,24 +4,18 @@ import type { Scene } from 'babylonjs';
 
 export default class Level {
 
-    scene: Scene
     game: Game
+    scene: Scene
+    assets: null
+    materials: BABYLON.Material
 
-    // materials: {}
-    // assets: null
-
-    constructor(scene: Scene, game: Game) {
-        
-        /**
-         * We can use this object to store materials that can be reused along the Game
-         */
-        this.materials = {};
-
-        this.scene = scene;
+    constructor(game: Game) {
+        this.scene = game.scene;
         this.game = game;
-
         this.assets = null;
-
+        
+        //We can use this object to store materials that can be reused along the Game
+        this.materials = {};
     }
 
     start() {

@@ -1,10 +1,14 @@
-export class ConstructionBlock {
+import type Level from "@/base/Level";
 
-    constructor(level, 
+export class ConstructionBlock {
+    level: Level
+    color: BABYLON.Color3
+
+    constructor(level: Level, 
                 size = new BABYLON.Vector3(1, 1, 1), 
                 position = new BABYLON.Vector3(0, 1, 0), 
                 rotation = new BABYLON.Vector3(0, 0, 0), 
-                color) {
+                color: BABYLON.Color3) {
 
         this.level = level;
         this.scene = level.scene;
@@ -31,7 +35,7 @@ export class ConstructionBlock {
     }
 
     create() {
-        this.mesh = new BABYLON.Mesh.CreateBox('block', 2, this.level.scene);
+        this.mesh = new BABYLON.Mesh.CreateBox('block', 1, this.level.scene);
         this.mesh.block = this;
         this.mesh.scaling = this.size;
         this.mesh.position = this.position;
@@ -41,13 +45,16 @@ export class ConstructionBlock {
         this.mesh.isPickable = true;
         this.mesh.checkCollisions = true;
 
-        var boxMaterial = new BABYLON.StandardMaterial('blockmat', this.level.scene);
-        if (this.color) boxMaterial.emissiveColor = this.color;
-        else { 
-            boxMaterial.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        var boxMaterial = new BABYLON.StandardMaterial('blockmat', this.scene);
+        var newColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        if (this.color) {
+            boxMaterial.emissiveColor = this.color;
+        } else {
+            // console.log(newColor)
+            boxMaterial.emissiveColor = newColor;
         }
         this.mesh.material = boxMaterial;
-        this.color = this.mesh.material.emissiveColor; // update object color
+        this.color = newColor; // update object color
 
         BABYLON.Tags.AddTagsTo(this.mesh, 'block');
 

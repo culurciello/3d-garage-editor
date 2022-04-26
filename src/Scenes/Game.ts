@@ -4,12 +4,21 @@ import "@babylonjs/loaders/glTF";
 import TestLevel from '@/Scenes/TestLevel';
 import Log from '@/base/Log';
 import Helper from "@/base/Helper";
+import type Level from "@/base/Level";
+import type { int } from "babylonjs";
 
 export class Game {
 
     engine: BABYLON.Engine
     scene: BABYLON.Scene
-    level: TestLevel
+    level: Level
+    currentLevel: Level
+    log: Log
+    levels: {}
+    keys: {}
+    options: null
+    paused: boolean
+    helper: Helper
 
     constructor(canvasDom: HTMLCanvasElement) {
         // Sets game options:
@@ -35,7 +44,7 @@ export class Game {
             // 'HomeMenuLevel': new HomeMenuLevel(this.scene),
             // 'CreditsLevel': new CreditsLevel(this.scene),
             // 'FirstLevel': new FirstLevel(this.scene),
-            'TestLevel': new TestLevel(this.scene, this),
+            'TestLevel': new TestLevel(this),
         };
 
         this.currentLevel = null;
