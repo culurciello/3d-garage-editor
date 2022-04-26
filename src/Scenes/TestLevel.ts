@@ -222,6 +222,10 @@ export default class TestLevel extends Level {
         })
     }
 
+    beforeRender() {
+        // for animations and other Game logics
+    }
+
     // custom save function  - not BabylonJS default json save scene!
     saveScene() {
         // console.log('save scene - custom');

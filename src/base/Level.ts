@@ -78,7 +78,7 @@ export default class Level {
 
     exit() {
         // Fix to blur the canvas to avoid issues with keyboard input
-        this.game.canvas.blur();
+        // this.game.canvas.blur();
 
         this.game.stopRenderLoop();
 
