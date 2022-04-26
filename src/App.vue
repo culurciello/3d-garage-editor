@@ -17,14 +17,6 @@ export default defineComponent({
   name: "App",
   components: { Game },//, GameHUD },
   setup() {
-
-    onMounted(() => {
-      document.addEventListener("keyup", captureKeys);
-    });
-  
-    onUnmounted(() => {
-      document.removeEventListener("keyup", captureKeys)
-    });
   },
 });
 </script>

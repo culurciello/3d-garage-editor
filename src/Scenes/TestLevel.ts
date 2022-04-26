@@ -1,5 +1,5 @@
 import { UI } from '@/base/UI';
-import { ConstructionBlock } from '@/Providers/ConstructionBlock';
+import { ConstructionBlock } from '@/Scenes/ConstructionBlock';
 import { Game } from "@/Scenes/Game";
 import Level from '@/base/Level';
 
