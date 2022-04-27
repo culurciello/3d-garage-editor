@@ -4,6 +4,13 @@ A 3D engine to create a dataset of 3D assets
 
 Vue + typescript version.
 
+TO-DO:
+
+- blocks color
+- edit/game button
+- edit gizmo and buttons
+
+
 
 ## Project Setup
 
